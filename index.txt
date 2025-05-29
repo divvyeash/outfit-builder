@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trendy Outfit Builder</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .gender-switch {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .switch-btn {
+            padding: 12px 30px;
+            margin: 0 10px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            font-size: 1.1rem;
+        }
+
+        .switch-btn.active {
+            background: rgba(255,255,255,0.9);
+            color: #667eea;
+            transform: scale(1.05);
+        }
+
+        .outfit-builder {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .category {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            color: white;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .category h3 {
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .item-container {
+            position: relative;
+            height: 200px;
+            overflow: hidden;
+            border-radius: 15px;
+            background: rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .clothing-item {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .clothing-item:hover {
+            transform: scale(1.1);
+        }
+
+        .item-name {
+            background: rgba(0,0,0,0.7);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+
+        .swipe-hint {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+
+        .outfit-display {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(15px);
+            border-radius: 25px;
+            padding: 30px;
+            text-align: center;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .outfit-display h2 {
+            color: white;
+            margin-bottom: 20px;
+            font-size: 2rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .current-outfit {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .outfit-item {
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 15px;
+            color: white;
+        }
+
+        .outfit-item h4 {
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            opacity: 0.8;
+        }
+
+        .outfit-item .emoji {
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+        }
+
+        .outfit-item .name {
+            font-size: 0.9rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .save-btn {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+        }
+
+        .random-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+        }
+
+        .reset-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+
+        @keyframes slideOut {
+            from { transform: translateX(0); }
+            to { transform: translateX(-100%); }
+        }
+
+        .slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .slide-out {
+            animation: slideOut 0.3s ease-out;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .outfit-builder {
+                grid-template-columns: 1fr 1fr;
+                gap: 15px;
+            }
+            
+            .clothing-item {
+                font-size: 3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✨ Trendy Outfit Builder ✨</h1>
+            <p>Swipe through trendy pieces to create your perfect look!</p>
+        </div>
+
+        <div class="gender-switch">
+            <button class="switch-btn active" onclick="switchGender('female')">👩 Female</button>
+            <button class="switch-btn" onclick="switchGender('male')">👨 Male</button>
+        </div>
+
+        <div class="outfit-builder">
+            <div class="category">
+                <h3>Headpieces</h3>
+                <div class="item-container">
+                    <div class="clothing-item" id="headpiece-item">👑</div>
+                </div>
+                <div class="item-name" id="headpiece-name">Trendy Headband</div>
+                <div class="swipe-hint">Click to change →</div>
+            </div>
+
+            <div class="category">
+                <h3>Tops</h3>
+                <div class="item-container">
+                    <div class="clothing-item" id="top-item">👕</div>
+                </div>
+                <div class="item-name" id="top-name">Crop Top</div>
+                <div class="swipe-hint">Click to change →</div>
+            </div>
+
+            <div class="category">
+                <h3>Bottoms</h3>
+                <div class="item-container">
+                    <div class="clothing-item" id="bottom-item">👖</div>
+                </div>
+                <div class="item-name" id="bottom-name">High-Waist Jeans</div>
+                <div class="swipe-hint">Click to change →</div>
+            </div>
+
+            <div class="category">
+                <h3>Shoes</h3>
+                <div class="item-container">
+                    <div class="clothing-item" id="shoe-item">👠</div>
+                </div>
+                <div class="item-name" id="shoe-name">Platform Heels</div>
+                <div class="swipe-hint">Click to change →</div>
+            </div>
+
+            <div class="category">
+                <h3>Accessories</h3>
+                <div class="item-container">
+                    <div class="clothing-item" id="accessory-item">💍</div>
+                </div>
+                <div class="item-name" id="accessory-name">Statement Ring</div>
+                <div class="swipe-hint">Click to change →</div>
+            </div>
+        </div>
+
+        <div class="outfit-display">
+            <h2>Your Ultimate Outfit</h2>
+            <div class="current-outfit">
+                <div class="outfit-item">
+                    <h4>Headpiece</h4>
+                    <div class="emoji" id="outfit-headpiece">👑</div>
+                    <div class="name" id="outfit-headpiece-name">Trendy Headband</div>
+                </div>
+                <div class="outfit-item">
+                    <h4>Top</h4>
+                    <div class="emoji" id="outfit-top">👕</div>
+                    <div class="name" id="outfit-top-name">Crop Top</div>
+                </div>
+                <div class="outfit-item">
+                    <h4>Bottom</h4>
+                    <div class="emoji" id="outfit-bottom">👖</div>
+                    <div class="name" id="outfit-bottom-name">High-Waist Jeans</div>
+                </div>
+                <div class="outfit-item">
+                    <h4>Shoes</h4>
+                    <div class="emoji" id="outfit-shoe">👠</div>
+                    <div class="name" id="outfit-shoe-name">Platform Heels</div>
+                </div>
+                <div class="outfit-item">
+                    <h4>Accessory</h4>
+                    <div class="emoji" id="outfit-accessory">💍</div>
+                    <div class="name" id="outfit-accessory-name">Statement Ring</div>
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="action-btn save-btn" onclick="saveOutfit()">💾 Save Outfit</button>
+                <button class="action-btn random-btn" onclick="randomizeOutfit()">🎲 Random Look</button>
+                <button class="action-btn reset-btn" onclick="resetOutfit()">🔄 Reset</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const clothingData = {
+            female: {
+                headpieces: [
+                    { emoji: '👑', name: 'Trendy Headband' },
+                    { emoji: '🎀', name: 'Silk Hair Bow' },
+                    { emoji: '🧢', name: 'Baseball Cap' },
+                    { emoji: '👒', name: 'Wide-Brim Hat' },
+                    { emoji: '🎩', name: 'Bucket Hat' },
+                    { emoji: '💍', name: 'Hair Clips' },
+                    { emoji: '✨', name: 'Sparkly Headpiece' },
+                    { emoji: '🌸', name: 'Flower Crown' }
+                ],
+                tops: [
+                    { emoji: '👕', name: 'Crop Top' },
+                    { emoji: '👚', name: 'Blouse' },
+                    { emoji: '🦺', name: 'Tank Top' },
+                    { emoji: '👗', name: 'Bodysuit' },
+                    { emoji: '🧥', name: 'Oversized Blazer' },
+                    { emoji: '👘', name: 'Kimono Top' },
+                    { emoji: '🎽', name: 'Sports Bra' },
+                    { emoji: '👔', name: 'Button-Up Shirt' }
+                ],
+                bottoms: [
+                    { emoji: '👖', name: 'High-Waist Jeans' },
+                    { emoji: '👗', name: 'Mini Skirt' },
+                    { emoji: '🩱', name: 'Leather Pants' },
+                    { emoji: '🩲', name: 'Biker Shorts' },
+                    { emoji: '👘', name: 'Maxi Skirt' },
+                    { emoji: '🩳', name: 'Denim Shorts' },
+                    { emoji: '👖', name: 'Wide-Leg Pants' },
+                    { emoji: '🎽', name: 'Leggings' }
+                ],
+                shoes: [
+                    { emoji: '👠', name: 'Platform Heels' },
+                    { emoji: '👟', name: 'White Sneakers' },
+                    { emoji: '🥿', name: 'Ballet Flats' },
+                    { emoji: '👢', name: 'Ankle Boots' },
+                    { emoji: '🩴', name: 'Strappy Sandals' },
+                    { emoji: '👞', name: 'Loafers' },
+                    { emoji: '👡', name: 'Stilettos' },
+                    { emoji: '🥾', name: 'Combat Boots' }
+                ],
+                accessories: [
+                    { emoji: '💍', name: 'Statement Ring' },
+                    { emoji: '📿', name: 'Layered Necklaces' },
+                    { emoji: '👜', name: 'Mini Bag' },
+                    { emoji: '🕶️', name: 'Cat-Eye Sunglasses' },
+                    { emoji: '⌚', name: 'Smart Watch' },
+                    { emoji: '💎', name: 'Diamond Earrings' },
+                    { emoji: '🎒', name: 'Crossbody Bag' },
+                    { emoji: '🧣', name: 'Silk Scarf' }
+                ]
+            },
+            male: {
+                headpieces: [
+                    { emoji: '🧢', name: 'Snapback Cap' },
+                    { emoji: '👒', name: 'Fedora' },
+                    { emoji: '🎩', name: 'Beanie' },
+                    { emoji: '⛑️', name: 'Bucket Hat' },
+                    { emoji: '👑', name: 'Headband' },
+                    { emoji: '🎓', name: 'Baseball Cap' },
+                    { emoji: '🪖', name: 'Military Cap' },
+                    { emoji: '👨‍💼', name: 'No Hat' }
+                ],
+                tops: [
+                    { emoji: '👔', name: 'Dress Shirt' },
+                    { emoji: '👕', name: 'T-Shirt' },
+                    { emoji: '🦺', name: 'Tank Top' },
+                    { emoji: '🧥', name: 'Blazer' },
+                    { emoji: '👘', name: 'Polo Shirt' },
+                    { emoji: '🎽', name: 'Jersey' },
+                    { emoji: '🧥', name: 'Hoodie' },
+                    { emoji: '👨‍💼', name: 'Sweater' }
+                ],
+                bottoms: [
+                    { emoji: '👖', name: 'Slim Jeans' },
+                    { emoji: '🩲', name: 'Chinos' },
+                    { emoji: '🩳', name: 'Cargo Shorts' },
+                    { emoji: '👔', name: 'Dress Pants' },
+                    { emoji: '🎽', name: 'Joggers' },
+                    { emoji: '👖', name: 'Ripped Jeans' },
+                    { emoji: '🩲', name: 'Khakis' },
+                    { emoji: '🩳', name: 'Board Shorts' }
+                ],
+                shoes: [
+                    { emoji: '👟', name: 'Fresh Sneakers' },
+                    { emoji: '👞', name: 'Oxford Shoes' },
+                    { emoji: '🥾', name: 'Work Boots' },
+                    { emoji: '👢', name: 'Chelsea Boots' },
+                    { emoji: '🩴', name: 'Slides' },
+                    { emoji: '👟', name: 'High-tops' },
+                    { emoji: '👞', name: 'Loafers' },
+                    { emoji: '🥿', name: 'Boat Shoes' }
+                ],
+                accessories: [
+                    { emoji: '⌚', name: 'Luxury Watch' },
+                    { emoji: '🕶️', name: 'Aviator Sunglasses' },
+                    { emoji: '🎒', name: 'Messenger Bag' },
+                    { emoji: '💍', name: 'Signet Ring' },
+                    { emoji: '📿', name: 'Chain Necklace' },
+                    { emoji: '🧣', name: 'Tie' },
+                    { emoji: '🎧', name: 'Wireless Earbuds' },
+                    { emoji: '👜', name: 'Wallet Chain' }
+                ]
+            }
+        };
+
+        let currentGender = 'female';
+        let currentIndices = {
+            headpieces: 0,
+            tops: 0,
+            bottoms: 0,
+            shoes: 0,
+            accessories: 0
+        };
+
+        function switchGender(gender) {
+            currentGender = gender;
+            
+            // Update button states
+            document.querySelectorAll('.switch-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Reset indices
+            currentIndices = {
+                headpieces: 0,
+                tops: 0,
+                bottoms: 0,
+                shoes: 0,
+                accessories: 0
+            };
+            
+            // Update all items
+            updateAllItems();
+        }
+
+        function updateAllItems() {
+            const categories = ['headpieces', 'tops', 'bottoms', 'shoes', 'accessories'];
+            categories.forEach(category => {
+                updateItem(category);
+            });
+        }
+
+        function updateItem(category) {
+            const items = clothingData[currentGender][category];
+            const index = currentIndices[category];
+            const item = items[index];
+            
+            // Update the selector
+            const itemElement = document.getElementById(`${category.slice(0, -1)}-item`) || 
+                               document.getElementById(`${category === 'accessories' ? 'accessory' : category.slice(0, -1)}-item`);
+            const nameElement = document.getElementById(`${category.slice(0, -1)}-name`) || 
+                               document.getElementById(`${category === 'accessories' ? 'accessory' : category.slice(0, -1)}-name`);
+            
+            if (itemElement && nameElement) {
+                itemElement.textContent = item.emoji;
+                nameElement.textContent = item.name;
+            }
+            
+            // Update the outfit display
+            const outfitEmojiElement = document.getElementById(`outfit-${category === 'accessories' ? 'accessory' : category.slice(0, -1)}`);
+            const outfitNameElement = document.getElementById(`outfit-${category === 'accessories' ? 'accessory' : category.slice(0, -1)}-name`);
+            
+            if (outfitEmojiElement && outfitNameElement) {
+                outfitEmojiElement.textContent = item.emoji;
+                outfitNameElement.textContent = item.name;
+            }
+        }
+
+        function nextItem(category) {
+            const items = clothingData[currentGender][category];
+            currentIndices[category] = (currentIndices[category] + 1) % items.length;
+            updateItem(category);
+        }
+
+        function randomizeOutfit() {
+            const categories = ['headpieces', 'tops', 'bottoms', 'shoes', 'accessories'];
+            categories.forEach(category => {
+                const items = clothingData[currentGender][category];
+                currentIndices[category] = Math.floor(Math.random() * items.length);
+            });
+            updateAllItems();
+        }
+
+        function resetOutfit() {
+            currentIndices = {
+                headpieces: 0,
+                tops: 0,
+                bottoms: 0,
+                shoes: 0,
+                accessories: 0
+            };
+            updateAllItems();
+        }
+
+        function saveOutfit() {
+            const outfit = {
+                gender: currentGender,
+                headpiece: clothingData[currentGender].headpieces[currentIndices.headpieces],
+                top: clothingData[currentGender].tops[currentIndices.tops],
+                bottom: clothingData[currentGender].bottoms[currentIndices.bottoms],
+                shoe: clothingData[currentGender].shoes[currentIndices.shoes],
+                accessory: clothingData[currentGender].accessories[currentIndices.accessories]
+            };
+            
+            alert(`Outfit Saved! 🎉\n\n${outfit.headpiece.name} ${outfit.headpiece.emoji}\n${outfit.top.name} ${outfit.top.emoji}\n${outfit.bottom.name} ${outfit.bottom.emoji}\n${outfit.shoe.name} ${outfit.shoe.emoji}\n${outfit.accessory.name} ${outfit.accessory.emoji}`);
+        }
+
+        // Add click handlers for swiping
+        document.addEventListener('DOMContent', function() {
+            document.getElementById('headpiece-item').addEventListener('click', () => nextItem('headpieces'));
+            document.getElementById('top-item').addEventListener('click', () => nextItem('tops'));
+            document.getElementById('bottom-item').addEventListener('click', () => nextItem('bottoms'));
+            document.getElementById('shoe-item').addEventListener('click', () => nextItem('shoes'));
+            document.getElementById('accessory-item').addEventListener('click', () => nextItem('accessories'));
+        });
+
+        // Initialize click handlers when page loads
+        window.onload = function() {
+            document.getElementById('headpiece-item').addEventListener('click', () => nextItem('headpieces'));
+            document.getElementById('top-item').addEventListener('click', () => nextItem('tops'));
+            document.getElementById('bottom-item').addEventListener('click', () => nextItem('bottoms'));
+            document.getElementById('shoe-item').addEventListener('click', () => nextItem('shoes'));
+            document.getElementById('accessory-item').addEventListener('click', () => nextItem('accessories'));
+            
+            // Initialize with default items
+            updateAllItems();
+        };
+    </script>
+</body>
+</html>
